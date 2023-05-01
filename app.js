@@ -20,12 +20,11 @@ let connections = [];
 
 // creating connect event which initialized when socket is connected.
 io.on("connect", (socket) => {
-
-    // once socket is connected adding the socket details to connections array.
+  // once socket is connected adding the socket details to connections array.
   connections.push(socket);
   console.log(`${socket.id} has connected`);
 
-//   creating another event body initialized when draw event is emitted
+  //   creating another event body initialized when draw event is emitted
   socket.on("draw", (data) => {
     connections.forEach((con) => {
       if (con.id !== socket.id) {
@@ -35,7 +34,20 @@ io.on("connect", (socket) => {
     });
   });
 
-//   creating another event body initialized when down even is emitted under script.js file
+  socket.on("idealMoving", (data) => {
+    connections.forEach((con) => {
+      if (con.id !== socket.id) {
+        // emitting ondraw function and passing x and y co-ordinates
+        con.emit("onIdealMoving", {
+          x: data.x,
+          y: data.y,
+          id: socket.id,
+        });
+      }
+    });
+  });
+
+  //   creating another event body initialized when down even is emitted under script.js file
   socket.on("down", (data) => {
     connections.forEach((con) => {
       if (con.id !== socket.id) {
@@ -45,7 +57,7 @@ io.on("connect", (socket) => {
     });
   });
 
-//   creating another event body disconnect triggered when socket or event is disconnected.
+  //   creating another event body disconnect triggered when socket or event is disconnected.
   socket.on("disconnect", (reason) => {
     console.log(`${socket.id} has disconnected because ${reason}`);
     connections = connections.filter((con) => con.id !== socket.id);

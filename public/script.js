@@ -1,15 +1,20 @@
 // getting canvas id created in HTML File
 let canvas = document.getElementById("canvas");
+let pointer = document.getElementById("pointer");
 
 // configuring width and height of canvas
 canvas.width = 0.98 * window.innerWidth;
 canvas.height = window.innerHeight;
+
+pointer.width = 0.98 * window.innerWidth;
+pointer.height = window.innerHeight;
 
 // connecting socket with Backend server path io is constant which is importing from a library under scrpit tag
 var io = io.connect("http://localhost:8000/");
 
 // creating 2d context of canvas
 let canvasContext = canvas.getContext("2d");
+let pointerContext = pointer.getContext("2d");
 
 let x;
 let y;
@@ -40,7 +45,6 @@ io.on("ondraw", ({ x, y }) => {
 
 // event triggered when ondown event is called
 io.on("ondown", ({ x, y }) => {
-
   // change the co-ordinates to new location of x and y
   canvasContext.moveTo(x, y);
 });
@@ -57,4 +61,33 @@ window.onmousemove = (e) => {
     canvasContext.lineTo(x, y);
     canvasContext.stroke();
   }
+  io.emit("idealMoving", { x, y });
 };
+let colorObj = {};
+
+io.on("onIdealMoving", ({ x, y, id, color }) => {
+  pointerContext.clearRect(0, 0, pointer.width, pointer.height);
+  pointerContext.beginPath();
+  pointerContext.arc(x, y, 10, 0, 2 * Math.PI);
+  pointerContext.fillStyle = idToColor(id);
+  pointerContext.fill();
+  pointerContext.font = "12px Arial";
+  pointerContext.fillText(id, x - 20, y - 20);
+});
+
+function idToColor(socketId) {
+  // Generate a hash code from the socket.id using a simple hashing function
+  let hash = 0;
+  for (let i = 0; i < socketId.length; i++) {
+    hash = socketId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Convert the hash code to a 24-bit hexadecimal color code
+  let color = "#";
+  for (let i = 0; i < 3; i++) {
+    let value = (hash >> (i * 8)) & 0xff;
+    color += value.toString(16).padStart(2, "0");
+  }
+
+  return color;
+}
