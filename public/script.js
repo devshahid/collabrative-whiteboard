@@ -10,7 +10,9 @@ pointer.width = 0.98 * window.innerWidth;
 pointer.height = window.innerHeight;
 
 // connecting socket with Backend server path io is constant which is importing from a library under scrpit tag
-var io = io.connect("http://localhost:8000/");
+// var io = io.connect("http://localhost:8000/");
+var io = io.connect("https://collabrative-whiteboard-gozu.onrender.com/");
+
 
 // creating 2d context of canvas
 let canvasContext = canvas.getContext("2d");

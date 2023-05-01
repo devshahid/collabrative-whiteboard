@@ -5,7 +5,7 @@ var socket = require("socket.io");
 // serving public folder as middleware
 app.use(express.static("public"));
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 // listening to port 8000
 const server = app.listen(PORT, () => {
